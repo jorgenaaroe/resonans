@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#060911] scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Resonans — Generate AI Playlists for Qobuz & Spotify</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Playfair Display (Luxury Serif) & Plus Jakarta Sans (Modern Clean UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght=0,200..800;1,200..800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Alpine.js for lightweight interactive mock logic -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Tailwind Custom Configurations -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fdf8ef',
+                            100: '#fbeed5',
+                            200: '#f5daaa',
+                            300: '#eebf73',
+                            400: '#e59f42',
+                            500: '#dd8423',
+                            600: '#c5691b',
+                            700: '#a34f19',
+                            800: '#833e1a',
+                            900: '#6b3419',
+                            950: '#3c1a0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+
+        /* Hide scrollbars but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Soundwave animation for the AI generator */
+        .wave-bar {
+            display: inline-block;
+            width: 3px;
+            height: 3px;
+            background-color: #fbbf24;
+            animation: pulseWave 1.2s ease-in-out infinite;
+        }
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.6s; }
+        
+        @keyframes pulseWave {
+            0%, 100% { height: 4px; }
+            50% { height: 32px; }
+        }
+
+        /* Premium glassmorphism panels */
+        .glass-panel {
+            background: rgba(15, 22, 38, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-200 antialiased selection:bg-amber-500/30 selection:text-amber-200" x-data="resonansApp()">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 bg-[#060911]/85 backdrop-blur-md border-b border-slate-800/80 px-4 py-4 sm:px-6">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <i data-lucide="music" class="w-5 h-5 text-slate-950 stroke-[2.5]"></i>
+                </div>
+                <div>
+                    <span class="font-serif text-xl font-bold tracking-wide text-white block leading-tight">Resonans</span>
+                    <span class="text-[8px] uppercase tracking-[0.2em] text-amber-500 font-bold block">AI Dual Engine</span>
+                </div>
+            </div>
+
+            <!-- Header Desktop Navigation links -->
+            <nav class="hidden md:flex items-center gap-6">
+                <a href="#chat-generator" @click.prevent="activeTab = 'create'" class="text-xs font-semibold uppercase tracking-wider text-slate-300 hover:text-amber-400 transition-colors">Test Live</a>
+                <a href="#features" class="text-xs font-semibold uppercase tracking-wider text-slate-300 hover:text-amber-400 transition-colors">How It Works</a>
+                <a href="#contact-section" class="text-xs font-semibold uppercase tracking-wider text-slate-300 hover:text-amber-400 transition-colors">Contact Support</a>
+            </nav>
+
+            <a href="https://resonans.cloud" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition-all active:scale-95">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                Sign Up Free
+            </a>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="relative overflow-hidden py-12 sm:py-20 border-b border-slate-900 bg-gradient-to-b from-[#0B0F19] to-[#060911]">
+        <!-- Ambient Background Lights -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="max-w-4xl mx-auto px-4 text-center space-y-6 relative z-10">
+            <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] px-3.5 py-1.5 rounded-full">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 animate-pulse"></i>
+                HIFI AI-GENERATOR FOR MUSIC LOVERS
+            </div>
+            
+            <h1 class="font-serif text-4xl sm:text-6xl font-medium tracking-tight text-white leading-tight">
+                Describe the mood.<br>We'll match the tracks.
+            </h1>
+            
+            <p class="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+                Resonans is an intelligent semantic engine that interprets your musical vision, scanning in real time for matching studio masters across both <span class="text-amber-400 font-semibold">Qobuz</span> and <span class="text-emerald-400 font-semibold">Spotify</span>.
+            </p>
+
+            <div class="flex justify-center items-center pt-4">
+                <a href="#chat-generator" @click="activeTab = 'create'" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-95 text-slate-950 font-bold rounded-xl text-sm shadow-xl shadow-amber-500/10 flex items-center justify-center gap-2 transition-all">
+                    Try the AI Assistant Live
+                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN APP CONTENT & WORKSPACE CONTAINER -->
+    <div id="chat-generator" class="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        <!-- SIDEBAR NAVIGATION (Desktop) -->
+        <aside class="hidden md:block col-span-1 space-y-2">
+            <button 
+                @click="activeTab = 'create'" 
+                :class="activeTab === 'create' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
+            >
+                <i data-lucide="music" class="w-4 h-4"></i>
+                Create Playlist
+            </button>
+            <button 
+                @click="activeTab = 'sync'" 
+                :class="activeTab === 'sync' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
+            >
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                Sync Playlists
+            </button>
+            <button 
+                @click="activeTab = 'profile'" 
+                :class="activeTab === 'profile' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
+            >
+                <i data-lucide="user" class="w-4 h-4"></i>
+                Profile & Taste
+            </button>
+            <button 
+                @click="activeTab = 'settings'" 
+                :class="activeTab === 'settings' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
+            >
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                Settings
+            </button>
+        </aside>
+
+        <!-- RIGHT MAIN WORKSPACE -->
+        <main class="col-span-1 md:col-span-3 space-y-6">
+
+            <!-- TAB 1: CREATE PLAYLIST (The Clean Conversational Chat timeline) -->
+            <div x-show="activeTab === 'create'" class="space-y-6" x-transition>
+                
+                <div class="space-y-1">
+                    <h2 class="font-serif text-2xl sm:text-3xl font-medium text-white">Describe the mood</h2>
+                    <p class="text-xs sm:text-sm text-slate-400">Write freely. Our AI analyzes the tempo, instruments, and acoustic atmosphere.</p>
+                </div>
+
+                <!-- THE UNIFIED CONVERSATIONAL TIMELINE -->
+                <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[460px] relative">
+                    
+                    <!-- Timeline Header -->
+                    <div class="bg-[#080D17] border-b border-slate-800/80 px-4 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-xs font-semibold text-slate-300">Resonans Interpreter: Active & Listening</span>
+                        </div>
+                        <!-- Platform Selector -->
+                        <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
+                            <button 
+                                @click="platform = 'qobuz'; showNotification('Search engine focused on: Qobuz (Hi-Res)')" 
+                                :class="platform === 'qobuz' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'"
+                                class="px-3 py-1 rounded-lg text-[10px] uppercase tracking-wider font-semibold transition-all"
+                            >
+                                Qobuz
+                            </button>
+                            <button 
+                                @click="platform = 'spotify'; showNotification('Search engine focused on: Spotify')" 
+                                :class="platform === 'spotify' ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'"
+                                class="px-3 py-1 rounded-lg text-[10px] uppercase tracking-wider font-semibold transition-all"
+                            >
+                                Spotify
+                            </button>
+                            <button 
+                                @click="platform = 'both'; showNotification('Search engine focused on: Dual Engine search')" 
+                                :class="platform === 'both' ? 'bg-slate-800 text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'"
+                                class="px-3 py-1 rounded-lg text-[10px] uppercase tracking-wider font-semibold transition-all"
+                            >
+                                Both
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CHAT AREA (Seamless blend of prompts and structured AI interpretation cards) -->
+                    <div class="flex-1 p-4 sm:p-6 space-y-6 overflow-y-auto max-h-[500px]">
+                        
+                        <!-- Empty State prior to prompt input -->
+                        <template x-if="!activeSession">
+                            <div class="flex flex-col items-center justify-center py-12 text-center space-y-4 max-w-md mx-auto" x-transition>
+                                <div class="h-14 w-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center shadow-inner">
+                                    <i data-lucide="bot" class="w-7 h-7 text-amber-400"></i>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <h3 class="font-serif text-lg text-white font-medium">What is your mood today?</h3>
+                                    <p class="text-xs text-slate-400 leading-relaxed">
+                                        Choose one of the quick inspirations below, or write your customized atmosphere in the text field at the bottom to get started.
+                                    </p>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Conversation Active State -->
+                        <template x-if="activeSession">
+                            <div class="space-y-6" x-transition>
+                                
+                                <!-- User Prompt Bubble -->
+                                <div class="flex justify-end">
+                                    <div class="max-w-[85%] sm:max-w-[70%] bg-slate-900/90 border border-slate-800/80 rounded-2xl px-4.5 py-3.5 shadow-md text-right relative">
+                                        <span class="text-[9px] uppercase tracking-widest text-slate-400 block mb-1">Your prompt request</span>
+                                        <p class="text-sm text-slate-200 font-light leading-relaxed whitespace-pre-line" x-text="activeSession.prompt"></p>
+                                        <div class="mt-2 flex items-center justify-end gap-1.5 text-[10px] text-slate-500">
+                                            <i data-lucide="user" class="w-3 h-3 text-slate-600"></i>
+                                            <span>Guest Listener</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AI Intelligent Interpretation Card -->
+                                <div class="flex justify-start">
+                                    <div class="max-w-[90%] sm:max-w-[80%] bg-[#080D17] border border-amber-500/20 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                                        
+                                        <!-- Ambient background light decorator -->
+                                        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none"></div>
+                                        
+                                        <div class="flex items-center gap-2.5 mb-4 border-b border-slate-800/80 pb-3">
+                                            <div class="h-6 w-6 rounded-full bg-amber-500/10 flex items-center justify-center">
+                                                <i data-lucide="cpu" class="w-3.5 h-3.5 text-amber-400"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-amber-400">AI Acoustic Analyzer</h4>
+                                                <span class="text-[9px] text-slate-400">Semantic parsing complete</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <p class="text-xs text-slate-300 leading-relaxed">
+                                                I have mapped your query parameters onto the following acoustic descriptors to scan for matches:
+                                            </p>
+
+                                            <!-- Extracted acoustic tags pills -->
+                                            <div class="flex flex-wrap gap-1.5">
+                                                <template x-for="tag in activeSession.tags" :key="tag">
+                                                    <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300 flex items-center gap-1.5">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                        <span x-text="tag"></span>
+                                                    </span>
+                                                </template>
+                                            </div>
+
+                                            <!-- Integrated parameters control block inside the card -->
+                                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/60 space-y-3.5">
+                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                                                    <div>
+                                                        <span class="text-[9px] text-slate-500 uppercase tracking-wider block">Suggested Title</span>
+                                                        <span class="text-xs font-bold text-white" x-text="activeSession.playlistName || 'Untitled Soundscape'"></span>
+                                                    </div>
+                                                    <!-- Toggle tuning parameters inline -->
+                                                    <button @click="showParams = !showParams; $nextTick(() => lucide.createIcons())" class="text-[11px] font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+                                                        <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                                                        <span x-text="showParams ? 'Hide Details' : 'Tune Details'"></span>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Collapsible tuning fields inside the card -->
+                                                <div x-show="showParams" class="space-y-3 pt-3 border-t border-slate-800/80" x-transition>
+                                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div class="space-y-1">
+                                                            <label class="text-[9px] text-slate-400 uppercase tracking-wider">Playlist Title</label>
+                                                            <input 
+                                                                type="text" 
+                                                                x-model="activeSession.playlistName"
+                                                                class="w-full bg-[#060911] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 outline-none focus:border-amber-500"
+                                                            />
+                                                        </div>
+                                                        <div class="space-y-1">
+                                                            <label class="text-[9px] text-slate-400 uppercase tracking-wider">Target Platform</label>
+                                                            <select 
+                                                                x-model="platform"
+                                                                class="w-full bg-[#060911] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-amber-500"
+                                                            >
+                                                                <option value="qobuz">Qobuz (Studio Master Quality)</option>
+                                                                <option value="spotify">Spotify Standard Quality</option>
+                                                                <option value="both">Combined Dual Engine</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Action compiling trigger -->
+                                                <button 
+                                                    @click="generatePlaylist" 
+                                                    class="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-95 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-transform"
+                                                >
+                                                    <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                                                    COMPILE PLAYLIST • <span x-text="(activeSession.playlistName || 'SOUNDSCAPE').toUpperCase()"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <!-- CHAT INPUT DOCK (Bottom panel layout) -->
+                    <div class="bg-[#080D17] border-t border-slate-800 p-4 space-y-3">
+                        
+                        <div class="relative flex items-stretch gap-2 bg-[#060911] border border-slate-800 rounded-xl p-1.5 focus-within:border-amber-500/80 transition-all">
+                            <textarea 
+                                x-model="promptInput"
+                                rows="1" 
+                                @keydown.enter.prevent="submitPrompt"
+                                placeholder="Type e.g. 'Nordic piano with slow tempo for deep focus' or 'Acoustic evening warmth'..."
+                                class="flex-1 bg-transparent text-slate-100 placeholder-slate-500 text-xs sm:text-sm outline-none resize-none p-2.5 leading-relaxed min-h-[44px]"
+                            ></textarea>
+                            
+                            <div class="flex flex-col justify-end">
+                                <button 
+                                    @click="submitPrompt" 
+                                    :disabled="!promptInput.trim()"
+                                    :class="promptInput.trim() ? 'bg-amber-500 text-slate-950 hover:opacity-90 active:scale-95' : 'bg-slate-800 text-slate-500 cursor-not-allowed'"
+                                    class="p-3 rounded-lg transition-all flex items-center justify-center aspect-square h-[44px] w-[44px]"
+                                    title="Send prompt to AI"
+                                >
+                                    <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Swipeable Inspirations presets bar -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-400 px-1">
+                                <span>Quick Inspirations:</span>
+                                <div class="flex gap-2 text-[11px]">
+                                    <button @click="tagFilter = 'ambient'" :class="tagFilter === 'ambient' ? 'text-amber-400 font-bold' : ''" class="hover:text-amber-300">Ambient</button>
+                                    <span>•</span>
+                                    <button @click="tagFilter = 'energetic'" :class="tagFilter === 'energetic' ? 'text-amber-400 font-bold' : ''" class="hover:text-amber-300">Energy</button>
+                                    <span>•</span>
+                                    <button @click="tagFilter = 'all'" :class="tagFilter === 'all' ? 'text-amber-400 font-bold' : ''" class="hover:text-amber-300">All</button>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2 overflow-x-auto pb-1.5 no-scrollbar -mx-2 px-2">
+                                <template x-for="preset in filteredPresets" :key="preset.label">
+                                    <button 
+                                        @click="applyPreset(preset)" 
+                                        class="text-xs flex items-center gap-1.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/30 text-slate-300 hover:text-amber-300 py-2 px-3.5 rounded-full transition-all shrink-0 active:scale-95"
+                                    >
+                                        <span x-text="preset.emoji"></span>
+                                        <span x-text="preset.label"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- SIMULATED REAL-TIME AI SCANNER / LOADER OVERLAY -->
+                    <div 
+                        x-show="generating" 
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="absolute inset-0 bg-[#060911]/95 z-20 flex flex-col items-center justify-center p-6 text-center"
+                        x-cloak
+                    >
+                        <div class="relative mb-6">
+                            <div class="flex items-end justify-center gap-2 h-14 w-28">
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                            </div>
+                            <div class="absolute -inset-4 bg-amber-500/10 rounded-full blur-xl animate-pulse"></div>
+                        </div>
+                        
+                        <h3 class="font-serif text-2xl font-semibold text-white mb-1">Synthesizing soundscape...</h3>
+                        <p class="text-[9px] text-amber-400 tracking-[0.2em] uppercase font-mono mb-6 animate-pulse" x-text="'Cross-referencing ' + platform.toUpperCase()"></p>
+                        
+                        <div class="w-52 bg-slate-800 h-1 rounded-full overflow-hidden">
+                            <div class="bg-amber-400 h-full rounded-full animate-[progress_3s_ease-in-out_infinite]" style="width: 75%"></div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-4 max-w-xs leading-relaxed" x-text="'Matching original high fidelity metadata sources for \'' + (activeSession ? activeSession.playlistName : 'Soundscape') + '\''"></p>
+                    </div>
+
+                </div>
+
+                <!-- COMPILATION PLAYLISTS HISTORY LOG -->
+                <div class="space-y-4 pt-6">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                            <i data-lucide="history" class="w-4 h-4"></i>
+                            Your Compilation History
+                        </h3>
+                        <button @click="clearHistory" class="text-xs text-slate-500 hover:text-slate-300 transition-colors">Clear History</button>
+                    </div>
+
+                    <!-- Dynamic History Records -->
+                    <div class="space-y-3">
+                        <template x-for="item in history" :key="item.id">
+                            <div class="bg-[#0F1626]/40 hover:bg-[#0F1626]/70 border border-slate-800/80 rounded-xl p-4 transition-all group flex items-start justify-between gap-3">
+                                <div class="space-y-1 min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h4 class="font-bold text-slate-100 group-hover:text-amber-400 transition-colors text-sm sm:text-base truncate" x-text="item.title"></h4>
+                                        <span 
+                                            class="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded border"
+                                            :class="{
+                                                'bg-amber-500/10 text-amber-400 border-amber-500/20': item.platform === 'QOBUZ',
+                                                'bg-emerald-500/10 text-emerald-400 border-emerald-500/20': item.platform === 'SPOTIFY',
+                                                'bg-indigo-500/10 text-indigo-400 border-indigo-500/20': item.platform === 'QOBUZ & SPOTIFY'
+                                            }"
+                                            x-text="item.platform"
+                                        ></span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 italic line-clamp-2 leading-relaxed" x-text="'&ldquo;' + item.prompt + '&rdquo;'"></p>
+                                    <div class="flex items-center gap-3 text-[11px] text-slate-500 pt-1">
+                                        <span class="flex items-center gap-1">
+                                            <i data-lucide="disc" class="w-3 h-3"></i>
+                                            <span x-text="item.tracks + ' matched tracks'"></span>
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-3 h-3"></i>
+                                            <span x-text="item.date"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <button @click="showNotification('Starting playback in Studio Master resolution: ' + item.title)" class="p-2.5 rounded-lg bg-slate-800 hover:bg-amber-500 hover:text-slate-950 transition-all text-slate-300 active:scale-90" title="Play Now">
+                                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                                    </button>
+                                    <button @click="copyShareLink(item)" class="p-2.5 rounded-lg bg-slate-800/40 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-all" title="Share Link">
+                                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB 2: SYNC PLAYLISTS -->
+            <div x-show="activeTab === 'sync'" class="space-y-6" x-transition x-cloak>
+                <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                    
+                    <div class="space-y-1.5">
+                        <h2 class="font-serif text-2xl sm:text-3xl text-white font-medium">Sync Playlists</h2>
+                        <p class="text-xs sm:text-sm text-slate-400">Keep your favorite streaming libraries aligned. Synchronize customized playlists dynamically between Qobuz and Spotify accounts.</p>
+                    </div>
+
+                    <!-- Sync Action Area -->
+                    <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/80 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-0.5">
+                                <span class="text-xs font-bold text-white block">Multi-Platform Synchronization Engine</span>
+                                <span class="text-[11px] text-slate-400 block" x-text="selectedSyncPlaylists.length + ' Playlists selected for sync' "></span>
+                            </div>
+                            <button 
+                                @click="runPlaylistSync"
+                                :disabled="syncing"
+                                :class="syncing ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:opacity-95'"
+                                class="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all active:scale-[0.98]"
+                            >
+                                <i data-lucide="refresh-cw" :class="syncing ? 'animate-spin' : ''" class="w-4 h-4"></i>
+                                <span x-text="syncing ? 'Syncing...' : 'Sync Now'"></span>
+                            </button>
+                        </div>
+
+                        <!-- Progress Bar for Sync activity -->
+                        <div x-show="syncing" class="space-y-2 pt-2" x-transition>
+                            <div class="flex items-center justify-between text-xs font-mono">
+                                <span class="text-amber-400 animate-pulse" x-text="syncStage"></span>
+                                <span class="text-white" x-text="syncProgress + '%'"></span>
+                            </div>
+                            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                                <div class="bg-amber-400 h-full transition-all duration-300" :style="{ width: syncProgress + '%' }"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- List of Playlists available to sync -->
+                    <div class="space-y-3 pt-2">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Select Playlists to Align</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            
+                            <div 
+                                @click="toggleSyncSelect(1)"
+                                :class="selectedSyncPlaylists.includes(1) ? 'border-amber-500/50 bg-[#0F1626]/60' : 'border-slate-800/80 bg-slate-950/40'"
+                                class="p-4 rounded-xl border hover:bg-slate-950/80 transition-all cursor-pointer flex items-center gap-3"
+                            >
+                                <div class="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="music" class="text-emerald-400 w-5 h-5"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-xs font-bold text-white truncate">Neon Streets Pulse</h4>
+                                    <span class="text-[10px] text-slate-400 block">45 tracks • Spotify</span>
+                                </div>
+                                <div class="h-5 w-5 rounded border flex items-center justify-center" :class="selectedSyncPlaylists.includes(1) ? 'border-amber-500 bg-amber-500/10' : 'border-slate-700'">
+                                    <i x-show="selectedSyncPlaylists.includes(1)" data-lucide="check" class="text-amber-400 w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+
+                            <div 
+                                @click="toggleSyncSelect(2)"
+                                :class="selectedSyncPlaylists.includes(2) ? 'border-amber-500/50 bg-[#0F1626]/60' : 'border-slate-800/80 bg-slate-950/40'"
+                                class="p-4 rounded-xl border hover:bg-slate-950/80 transition-all cursor-pointer flex items-center gap-3"
+                            >
+                                <div class="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                                    <i data-lucide="music" class="text-amber-400 w-5 h-5"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-xs font-bold text-white truncate">Late Night Cabernet</h4>
+                                    <span class="text-[10px] text-slate-400 block">22 tracks • Qobuz</span>
+                                </div>
+                                <div class="h-5 w-5 rounded border flex items-center justify-center" :class="selectedSyncPlaylists.includes(2) ? 'border-amber-500 bg-amber-500/10' : 'border-slate-700'">
+                                    <i x-show="selectedSyncPlaylists.includes(2)" data-lucide="check" class="text-amber-400 w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: PROFILE & TASTE -->
+            <div x-show="activeTab === 'profile'" class="space-y-6" x-transition x-cloak>
+                <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="space-y-2">
+                        <h2 class="font-serif text-2xl sm:text-3xl text-white font-medium">Profile & Taste</h2>
+                        <p class="text-xs sm:text-sm text-slate-400">Configure your acoustic weights and profile metadata settings.</p>
+                    </div>
+
+                    <!-- PROFILE DETAILS CARD -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- ACOUSTIC BIAS CONTROL -->
+                        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/80 space-y-4">
+                            <h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="sliders" class="w-4 h-4 text-amber-500"></i>
+                                Acoustic Biases
+                            </h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">These weights are automatically applied dynamically to your semantic prompts.</p>
+                            
+                            <div class="space-y-4 pt-1">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-300">Deep Cuts Bias (Track Rarity)</span>
+                                        <span class="text-amber-400 font-bold">85%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                        <div class="bg-amber-400 h-full rounded-full" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-300">Tempo-Matching Sensitivity</span>
+                                        <span class="text-emerald-400 font-bold">90%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                        <div class="bg-emerald-400 h-full rounded-full" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONNECTED SERVICES -->
+                        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/80 space-y-4 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i>
+                                    Synchronized Libraries
+                                </h3>
+                                <p class="text-xs text-slate-400">Manage connected API pathways and active output directories.</p>
+                                
+                                <div class="space-y-2 pt-3">
+                                    <div class="flex items-center justify-between text-xs bg-[#060911] p-2.5 rounded-lg border border-slate-800">
+                                        <span class="text-slate-300">Qobuz Hi-Res Master API</span>
+                                        <span class="text-emerald-400 font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs bg-[#060911] p-2.5 rounded-lg border border-slate-800">
+                                        <span class="text-slate-300">Spotify Playback API</span>
+                                        <span class="text-emerald-400 font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button @click="showNotification('Synchronizing favorited tracks with Qobuz and Spotify...')" class="w-full text-xs py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 hover:text-white rounded-lg transition-colors mt-4">
+                                Re-sync Liked Tracks
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: SETTINGS -->
+            <div x-show="activeTab === 'settings'" class="space-y-6" x-transition x-cloak>
+                <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="space-y-2">
+                        <h2 class="font-serif text-2xl sm:text-3xl text-white font-medium">Settings</h2>
+                        <p class="text-xs sm:text-sm text-slate-400">Configure global configurations, credentials, and export targets.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                            <div class="space-y-0.5">
+                                <span class="text-xs font-bold text-white block">Lossless Audio Preference</span>
+                                <span class="text-[11px] text-slate-400 block">Always prefer studio master streams (up to 24-bit/192kHz).</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                            </label>
+                        </div>
+
+                        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                            <div class="space-y-0.5">
+                                <span class="text-xs font-bold text-white block">Continuous Metadata Syncing</span>
+                                <span class="text-[11px] text-slate-400 block">Keep local history synchronized in real-time across cloud accounts.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- VALUE PROPOSITIONS / HOW IT WORKS -->
+    <section id="features" class="py-16 bg-[#080D17] border-t border-slate-900 px-4">
+        <div class="max-w-4xl mx-auto space-y-12">
+            <div class="text-center space-y-2">
+                <h2 class="font-serif text-2xl sm:text-4xl font-medium text-white">How does Resonans work?</h2>
+                <p class="text-slate-400 text-xs sm:text-sm">An uncompromising experience built for audiophiles and music discoverers.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-slate-900/60 border border-slate-800/80 p-6 rounded-xl space-y-3">
+                    <div class="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                        <i data-lucide="search" class="text-amber-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-semibold text-white text-base">1. Semantic Search</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Our AI reads deep sentences, interpreting context, tempos, instrumentations, and decades instead of just simple text strings.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900/60 border border-slate-800/80 p-6 rounded-xl space-y-3">
+                    <div class="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                        <i data-lucide="sliders-horizontal" class="text-emerald-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-semibold text-white text-base">2. Cross-Referencing</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        The AI scans both Qobuz's lossless high-resolution catalogue and Spotify's vast metadata archive simultaneously for match curation.
+                    </p>
+                </div>
+
+                <!-- UPDATED EXPORT CARD ACCORDING TO USER FEEDBACK (Replaces image_8ad762.png Direct Export) -->
+                <div class="bg-slate-900/60 border border-slate-800/80 p-6 rounded-xl space-y-3">
+                    <div class="h-10 w-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                        <i data-lucide="headphones" class="text-indigo-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-semibold text-white text-base">3. Export of Playlist to Qobuz or Spotify</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Seamlessly deploy and synchronize compiled playlists straight into your preferred connected music service in high-fidelity quality.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- EMBEDDED CONTACT SUPPORT SECTION (At the absolute bottom of scroll) -->
+    <section id="contact-section" class="py-16 bg-[#060911] border-t border-slate-900/80 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Back navigation link -->
+            <button 
+                @click="window.scrollTo({ top: 0, behavior: 'smooth' }); activeTab = 'create'" 
+                class="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-4 transition-colors"
+            >
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                Back
+            </button>
+
+            <div class="space-y-6">
+                <!-- Contact Header with speech bubble -->
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2.5">
+                        <i data-lucide="message-circle" class="w-6 h-6 text-amber-500 stroke-[2]"></i>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">Contact</h2>
+                    </div>
+                    <p class="text-sm text-slate-400 font-light">Have a question, suggestion or feedback? Send us a message and we'll get back to you.</p>
+                </div>
+
+                <!-- Success state -->
+                <div x-show="contactSent" x-transition class="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mt-2">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+                    <div>
+                        <p class="text-sm font-semibold text-emerald-300">Message sent!</p>
+                        <p class="text-xs text-slate-400 mt-0.5">We'll get back to you as soon as possible.</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Form -->
+                <form x-show="!contactSent" @submit.prevent="sendContactEmail" class="space-y-5 pt-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Name</label>
+                            <input 
+                                type="text" 
+                                x-model="contactForm.name"
+                                required
+                                placeholder="Your name"
+                                class="w-full bg-[#0a0f1d] border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all placeholder-slate-500"
+                            />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Email</label>
+                            <div class="relative">
+                                <input 
+                                    type="email" 
+                                    x-model="contactForm.email"
+                                    required
+                                    placeholder="you@example.com"
+                                    class="w-full bg-[#0a0f1d] border border-slate-800 rounded-xl pl-4 pr-10 py-3 text-sm text-slate-100 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all placeholder-slate-500"
+                                />
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600">
+                                    <i data-lucide="activity" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Subject</label>
+                        <input 
+                            type="text"
+                            x-model="contactForm.subject"
+                            required
+                            placeholder="What's this about?"
+                            class="w-full bg-[#0a0f1d] border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all placeholder-slate-500"
+                        />
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Message</label>
+                        <div class="relative">
+                            <textarea 
+                                x-model="contactForm.message"
+                                required
+                                maxlength="4000"
+                                rows="6"
+                                placeholder="Tell us more..."
+                                class="w-full bg-[#0a0f1d] border border-slate-800 rounded-xl p-4 text-sm text-slate-100 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all resize-none placeholder-slate-500"
+                            ></textarea>
+                            <!-- Reactive character counter mirroring 0/4000 counter position -->
+                            <div class="flex justify-end text-[11px] text-slate-500 mt-1.5 font-mono">
+                                <span x-text="contactForm.message.length + '/4000'"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error message -->
+                    <p x-show="contactError" x-text="contactError" class="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"></p>
+
+                    <button
+                        type="submit"
+                        :disabled="contactSending"
+                        :class="contactSending ? 'opacity-60 cursor-not-allowed' : 'hover:bg-slate-800 hover:text-white active:scale-[0.98]'"
+                        class="w-full py-4 px-6 bg-[#131924] border border-slate-800 text-slate-300 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all"
+                    >
+                        <template x-if="contactSending">
+                            <span class="flex items-center gap-2">
+                                <svg class="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                SENDING…
+                            </span>
+                        </template>
+                        <template x-if="!contactSending">
+                            <span class="flex items-center gap-2">
+                                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                SEND MESSAGE
+                            </span>
+                        </template>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOBILE BOTTOM NAVIGATION DOCK -->
+    <div class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-[#060911]/90 backdrop-blur-md border-t border-slate-800/80 px-4 py-2.5 flex justify-around items-center">
+        <button 
+            @click="activeTab = 'create'" 
+            :class="activeTab === 'create' ? 'text-amber-400' : 'text-slate-500'"
+            class="flex flex-col items-center gap-1"
+        >
+            <i data-lucide="music" class="w-5 h-5"></i>
+            <span class="text-[9px] uppercase font-bold tracking-wider">Create</span>
+        </button>
+        <button 
+            @click="activeTab = 'sync'" 
+            :class="activeTab === 'sync' ? 'text-amber-400' : 'text-slate-500'"
+            class="flex flex-col items-center gap-1"
+        >
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+            <span class="text-[9px] uppercase font-bold tracking-wider">Sync</span>
+        </button>
+        <button 
+            @click="activeTab = 'profile'" 
+            :class="activeTab === 'profile' ? 'text-amber-400' : 'text-slate-500'"
+            class="flex flex-col items-center gap-1"
+        >
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-[9px] uppercase font-bold tracking-wider">Taste</span>
+        </button>
+        <button 
+            @click="document.getElementById('contact-section').scrollIntoView({ behavior: 'smooth' })" 
+            class="flex flex-col items-center gap-1 text-slate-500 hover:text-amber-400 font-bold transition-all"
+        >
+            <i data-lucide="mail" class="w-5 h-5"></i>
+            <span class="text-[9px] uppercase font-bold tracking-wider">Support</span>
+        </button>
+        <button 
+            @click="activeTab = 'settings'" 
+            :class="activeTab === 'settings' ? 'text-amber-400' : 'text-slate-500'"
+            class="flex flex-col items-center gap-1"
+        >
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="text-[9px] uppercase font-bold tracking-wider">Settings</span>
+        </button>
+    </div>
+
+    <!-- FLOATING DYNAMIC NOTIFICATION TOAST -->
+    <div x-show="notification" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-4"
+         class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm bg-[#151D30]/95 border border-amber-500/30 backdrop-blur-md rounded-xl p-4 shadow-xl flex items-center justify-between"
+         x-cloak
+    >
+        <div class="flex items-center gap-3">
+            <i data-lucide="bell" class="w-4 h-4 text-amber-400 shrink-0"></i>
+            <span class="text-xs text-amber-200 font-medium" x-text="notificationText"></span>
+        </div>
+        <button @click="notification = false" class="text-amber-400/60 hover:text-amber-400 ml-2 p-1">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#04060B] border-t border-slate-900 py-12 text-center text-xs text-slate-500 pb-24 md:pb-12">
+        <div class="max-w-4xl mx-auto px-4 space-y-2">
+            <p>&copy; 2026 Resonans AI. All rights reserved.</p>
+            <p class="font-light">Coded for perfectionists and acoustic collectors in harmony with Qobuz & Spotify.</p>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE ALPINEJS MOCK LOGIC -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('resonansApp', () => ({
+                promptInput: '',
+                activeSession: null, 
+                showParams: false,
+                generating: false,
+                notification: false,
+                notificationText: '',
+                platform: 'qobuz', // 'qobuz' | 'spotify' | 'both'
+                tagFilter: 'all', // 'all' | 'ambient' | 'energetic'
+                activeTab: 'create', // 'create' | 'sync' | 'profile' | 'contact' | 'settings'
+
+                // Sync page simulated states
+                selectedSyncPlaylists: [],
+                syncing: false,
+                syncProgress: 0,
+                syncStage: '',
+
+                // Contact support state
+                contactForm: {
+                    name: '',
+                    email: '',
+                    subject: '',
+                    message: ''
+                },
+                contactSending: false,
+                contactSent: false,
+                contactError: '',
+
+                // Mood templates translated to English corresponding to image targets
+                presets: [
+                    { label: 'Nordic Piano', emoji: '🎹', cat: 'ambient', prompt: 'Nordic neo-classical piano, fully instrumental with slow tempos', suggestedName: 'Nordic Calm & Keys', tags: ['neo-classical', 'melancholic', 'deep focus', 'calm', 'instrumental'] },
+                    { label: 'Night Jazz', emoji: '🎷', cat: 'ambient', prompt: 'Only Blue Note Records jazz from the 1960s with slow swing tempos', suggestedName: 'Late Night Cabernet', tags: ['jazz', '1960s', 'blue note', 'slow tempo', 'smoky'] },
+                    { label: 'Synthwave', emoji: '🌌', cat: 'energetic', prompt: 'Melodic retro-futuristic synthwave with driving basslines', suggestedName: 'Neon Streets Pulse', tags: ['synthwave', 'retro', 'driving bass', 'electronic'] },
+                    { label: 'Acoustic Ambient', emoji: '🕯️', cat: 'ambient', prompt: 'Delicate acoustic guitar with soft cinematic ambient synthesizer backdrops', suggestedName: 'Quiet Warmth', tags: ['acoustic', 'guitar', 'ambient', 'cinematic'] },
+                    { label: 'Lo-Fi Hip-Hop', emoji: '🎧', cat: 'ambient', prompt: 'Cozy, warm lo-fi hip-hop beats with vinyl static and jazz samples', suggestedName: 'Study Static', tags: ['lo-fi beats', 'vinyl static', 'warm jazz samples'] },
+                    { label: 'Deep House', emoji: '🎵', cat: 'energetic', prompt: 'Thumping house beats with airy synthesizers and clean, deep sub-bass', suggestedName: 'Chroma Echoes', tags: ['deep house', 'sub-bass', 'four-on-the-floor'] }
+                ],
+
+                // Pre-populated log items matching the reference history
+                history: [
+                    {
+                        id: 1,
+                        title: 'CountryAndRock',
+                        prompt: 'Based on my favorites and focus on country and rock, see what others like in this genre...',
+                        tracks: 35,
+                        date: 'Today, 18:50',
+                        platform: 'QOBUZ & SPOTIFY'
+                    },
+                    {
+                        id: 2,
+                        title: 'Late Night Cabernet',
+                        prompt: 'Smooth, smoky night jazz with saxophone and brush drum accompaniment.',
+                        tracks: 22,
+                        date: 'Yesterday, 23:10',
+                        platform: 'QOBUZ'
+                    }
+                ],
+
+                get filteredPresets() {
+                    if (this.tagFilter === 'all') return this.presets;
+                    return this.presets.filter(tag => tag.cat === this.tagFilter);
+                },
+
+                init() {
+                    // Pre-populate with the same "Nordic" focus state layout seen in 71D7D93A-6C36-42EF-B4D7-C1AB43DAB5C1.png
+                    this.activeSession = {
+                        prompt: "Nordic melancholic neo-classical piano for deep focus and calm, fully instrumental.",
+                        playlistName: "Nordic Calm & Keys",
+                        tags: ["neo-classical", "melancholic", "deep focus", "calm", "instrumental"]
+                    };
+
+                    // Auto watch activeTab and render Lucide icons seamlessly
+                    this.$watch('activeTab', value => {
+                        this.$nextTick(() => {
+                            lucide.createIcons();
+                        });
+                    });
+                    
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                },
+
+                applyPreset(tag) {
+                    this.promptInput = tag.prompt;
+                    this.activeSession = {
+                        prompt: tag.prompt,
+                        playlistName: tag.suggestedName,
+                        tags: tag.tags
+                    };
+                    
+                    this.showNotification(`Loaded preset: "${tag.label}"`);
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                },
+
+                showNotification(text) {
+                    this.notificationText = text;
+                    this.notification = true;
+                    setTimeout(() => {
+                        this.notification = false;
+                    }, 4000);
+                },
+
+                copyShareLink(item) {
+                    const textToCopy = `Resonans Playlist: ${item.title} (${item.platform}) - Prompt: "${item.prompt}"`;
+                    
+                    const tempInput = document.createElement('input');
+                    tempInput.value = textToCopy;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    
+                    this.showNotification('Playlist share-link copied to clipboard!');
+                },
+
+                async submitPrompt() {
+                    if (!this.promptInput.trim() || this.generating) return;
+
+                    const prompt = this.promptInput.trim();
+                    this.promptInput = '';
+                    this.generating = true;
+
+                    try {
+                        const res = await fetch('https://qobuz-api-ru0e.onrender.com/demo/parse', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ prompt })
+                        });
+
+                        const data = await res.json();
+
+                        if (!res.ok) {
+                            this.showNotification(data.error || 'Could not parse prompt. Try again.');
+                            this.generating = false;
+                            return;
+                        }
+
+                        this.activeSession = {
+                            prompt,
+                            playlistName: data.suggestedName || 'AI Playlist',
+                            tags: data.tags || ['curated']
+                        };
+
+                        if (data.needsClarification && data.clarificationQuestion) {
+                            this.showNotification('💬 ' + data.clarificationQuestion);
+                        } else {
+                            this.showNotification('AI interpretation complete — inspect below!');
+                        }
+                    } catch (e) {
+                        this.showNotification('Connection error. Please try again.');
+                    } finally {
+                        this.generating = false;
+                        this.$nextTick(() => lucide.createIcons());
+                    }
+                },
+
+                generatePlaylist() {
+                    if (!this.activeSession) return;
+                    this.generating = true;
+                    
+                    setTimeout(() => {
+                        this.generating = false;
+                        
+                        let targetPlatformName = 'QOBUZ';
+                        if (this.platform === 'spotify') targetPlatformName = 'SPOTIFY';
+                        if (this.platform === 'both') targetPlatformName = 'QOBUZ & SPOTIFY';
+
+                        const finalTitle = this.activeSession.playlistName.trim() ? this.activeSession.playlistName.trim() : 'AI Playlist';
+                        
+                        const newPlaylist = {
+                            id: Date.now(),
+                            title: finalTitle,
+                            prompt: this.activeSession.prompt,
+                            tracks: Math.floor(Math.random() * (36 - 12 + 1)) + 12,
+                            date: 'Just now',
+                            platform: targetPlatformName
+                        };
+                        
+                        this.history.unshift(newPlaylist);
+                        this.activeSession = null;
+                        this.showParams = false;
+                        
+                        this.showNotification(`"${finalTitle}" compiled and exported to your music library!`);
+                        
+                        this.$nextTick(() => {
+                            lucide.createIcons();
+                        });
+                    }, 3000);
+                },
+
+                clearHistory() {
+                    this.history = [];
+                    this.showNotification('Compilation log cleared.');
+                },
+
+                // Simulated Premium Sync Playlists engine logic
+                toggleSyncSelect(id) {
+                    if (this.selectedSyncPlaylists.includes(id)) {
+                        this.selectedSyncPlaylists = this.selectedSyncPlaylists.filter(i => i !== id);
+                    } else {
+                        this.selectedSyncPlaylists.push(id);
+                    }
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                },
+
+                runPlaylistSync() {
+                    if (this.selectedSyncPlaylists.length === 0) {
+                        this.showNotification('Select at least one playlist to synchronize.');
+                        return;
+                    }
+                    this.syncing = true;
+                    this.syncProgress = 5;
+                    this.syncStage = 'Connecting secure API handshakes...';
+
+                    let interval = setInterval(() => {
+                        this.syncProgress += Math.floor(Math.random() * 15) + 5;
+                        if (this.syncProgress < 30) {
+                            this.syncStage = 'Fetching source hi-res matching records...';
+                        } else if (this.syncProgress < 60) {
+                            this.syncStage = 'Resolving metadata profiles on secondary platform...';
+                        } else if (this.syncProgress < 90) {
+                            this.syncStage = 'Populating dynamic music path tracks...';
+                        } else {
+                            this.syncStage = 'Finalizing lossless cloud-to-cloud handshakes...';
+                        }
+
+                        if (this.syncProgress >= 100) {
+                            clearInterval(interval);
+                            this.syncProgress = 100;
+                            setTimeout(() => {
+                                this.syncing = false;
+                                this.showNotification(`Successfully synchronized ${this.selectedSyncPlaylists.length} playlist(s)!`);
+                                this.selectedSyncPlaylists = [];
+                                this.$nextTick(() => {
+                                    lucide.createIcons();
+                                });
+                            }, 1000);
+                        }
+                    }, 200);
+                },
+
+                async sendContactEmail() {
+                    if (this.contactSending) return;
+                    this.contactSending = true;
+                    this.contactError = '';
+
+                    try {
+                        const res = await fetch('https://qobuz-api-ru0e.onrender.com/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name:    this.contactForm.name,
+                                email:   this.contactForm.email,
+                                subject: this.contactForm.subject,
+                                message: this.contactForm.message
+                            })
+                        });
+
+                        if (!res.ok) {
+                            const data = await res.json().catch(() => ({}));
+                            throw new Error(data.error || 'Could not send message. Please try again.');
+                        }
+
+                        this.contactSent = true;
+                        this.contactForm = { name: '', email: '', subject: '', message: '' };
+                        this.showNotification('Message sent! We\'ll get back to you shortly.');
+                    } catch (e) {
+                        this.contactError = e.message || 'Something went wrong. Please try again.';
+                    } finally {
+                        this.contactSending = false;
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
