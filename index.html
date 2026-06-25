@@ -106,7 +106,7 @@
             <nav class="hidden md:flex items-center gap-6">
                 <a href="#chat-generator" @click.prevent="activeTab = 'create'" class="text-xs font-semibold uppercase tracking-wider text-slate-300 hover:text-amber-400 transition-colors">Test Live</a>
                 <a href="#features" class="text-xs font-semibold uppercase tracking-wider text-slate-300 hover:text-amber-400 transition-colors">How It Works</a>
-                <a href="#contact-section" class="text-xs font-semibold uppercase tracking-wider text-slate-300 hover:text-amber-400 transition-colors">Contact Support</a>
+                <a href="#contact-section" class="text-xs font-semibold uppercase tracking-wider text-slate-300 hover:text-amber-400 transition-colors">Contact</a>
             </nav>
 
             <a href="https://app.resonans.cloud/register" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:opacity-90 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition-all active:scale-95">
@@ -165,13 +165,29 @@
                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 Sync Playlists
             </button>
-            <button 
-                @click="activeTab = 'profile'" 
+            <button
+                @click="activeTab = 'profile'"
                 :class="activeTab === 'profile' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-md' : 'text-slate-400 hover:text-slate-200'"
                 class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
             >
                 <i data-lucide="user" class="w-4 h-4"></i>
                 Profile & Taste
+            </button>
+            <button
+                @click="activeTab = 'about'"
+                :class="activeTab === 'about' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
+            >
+                <i data-lucide="info" class="w-4 h-4"></i>
+                About
+            </button>
+            <button
+                @click="activeTab = 'privacy'"
+                :class="activeTab === 'privacy' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-md' : 'text-slate-400 hover:text-slate-200'"
+                class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
+            >
+                <i data-lucide="shield" class="w-4 h-4"></i>
+                Privacy & Security
             </button>
         </aside>
 
@@ -691,37 +707,116 @@
                 </div>
             </div>
 
-            <!-- TAB 5: SETTINGS -->
-            <div x-show="activeTab === 'settings'" class="space-y-6" x-transition x-cloak>
-                <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
-                    <div class="space-y-2">
-                        <h2 class="font-serif text-2xl sm:text-3xl text-white font-medium">Settings</h2>
-                        <p class="text-xs sm:text-sm text-slate-400">Configure global configurations, credentials, and export targets.</p>
+            <!-- TAB: ABOUT -->
+            <div x-show="activeTab === 'about'" class="space-y-6" x-transition x-cloak>
+                <div class="space-y-1">
+                    <h2 class="font-serif text-2xl sm:text-3xl font-medium text-white">About</h2>
+                    <p class="text-xs sm:text-sm text-slate-400">The story behind Resonans.</p>
+                </div>
+                <div class="glass-panel rounded-2xl p-6 sm:p-8 space-y-5 text-slate-300 text-sm leading-relaxed">
+                    <p>This app was created because I, like many others, felt that the playlist generation as well as the radio and "daily" features in Qobuz are quite rudimentary, to put it mildly.</p>
+                    <p>The app is currently free of charge, and there are no plans to start charging for it. But (and here's the catch...) if traffic gets really heavy, I will likely have to introduce some sort of limitation, as I am funding the entire project out of my own pocket.</p>
+                    <p>Pairing the app with Qobuz is a bit tricky because they don't offer an open API; access is restricted to their official partners. By comparison, Spotify has an open and well-documented API, and as you can see in the app, that integration works very smoothly. Something Qobuz should definitely consider…</p>
+                    <p>Since the app is free, there is no direct support, but you are more than welcome to leave feedback via the contact form or on Reddit, where there is a thread about the app. I will do my best to reply as quickly as possible.</p>
+                    <p class="text-slate-400 pt-2">Best regards,<br><span class="text-white font-semibold">Jörgen</span></p>
+                    <div class="pt-4 border-t border-slate-800/60 flex flex-wrap gap-3">
+                        <a href="#contact-section" @click.prevent="document.getElementById('contact-section').scrollIntoView({ behavior: 'smooth' })"
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl text-xs font-semibold hover:bg-amber-500/20 transition-colors">
+                            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                            Leave feedback
+                        </a>
+                        <a href="https://www.reddit.com/r/qobuz/comments/1u9y10j/comment/oswj2up/?screen_view_count=2" target="_blank" rel="noreferrer"
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-xl text-xs font-semibold hover:bg-orange-500/20 transition-colors">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+                            Reddit thread
+                        </a>
                     </div>
+                </div>
+            </div>
 
-                    <div class="space-y-4">
-                        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 flex items-center justify-between">
-                            <div class="space-y-0.5">
-                                <span class="text-xs font-bold text-white block">Lossless Audio Preference</span>
-                                <span class="text-[11px] text-slate-400 block">Always prefer studio master streams (up to 24-bit/192kHz).</span>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" checked class="sr-only peer">
-                                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                            </label>
-                        </div>
+            <!-- TAB: PRIVACY & SECURITY -->
+            <div x-show="activeTab === 'privacy'" class="space-y-5" x-transition x-cloak>
+                <div class="space-y-1">
+                    <h2 class="font-serif text-2xl sm:text-3xl font-medium text-white">Privacy & Security</h2>
+                    <p class="text-xs sm:text-sm text-slate-400">How your data is stored, protected and used.</p>
+                </div>
 
-                        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 flex items-center justify-between">
-                            <div class="space-y-0.5">
-                                <span class="text-xs font-bold text-white block">Continuous Metadata Syncing</span>
-                                <span class="text-[11px] text-slate-400 block">Keep local history synchronized in real-time across cloud accounts.</span>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer">
-                                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                            </label>
-                        </div>
+                <!-- Authentication -->
+                <div class="glass-panel rounded-2xl p-6 space-y-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="lock" class="w-4 h-4 text-amber-500"></i>
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-amber-500">Authentication</h3>
                     </div>
+                    <p class="text-slate-300 text-sm leading-relaxed">User passwords are hashed using bcrypt (cost factor 10) before being stored. Plaintext passwords are never persisted at any point. A minimum of 8 characters is enforced at registration and password reset.</p>
+                    <p class="text-slate-300 text-sm leading-relaxed">Sessions are managed using signed JSON Web Tokens (JWT). Tokens are issued upon successful login and must be presented with every authenticated request. New accounts require email verification before access is granted.</p>
+                    <p class="text-slate-300 text-sm leading-relaxed">Admin access uses a separate authentication flow with a distinct token claim — a regular user token cannot be used to access administrative endpoints.</p>
+                </div>
+
+                <!-- Data Storage -->
+                <div class="glass-panel rounded-2xl p-6 space-y-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="database" class="w-4 h-4 text-amber-500"></i>
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-amber-500">Data Storage & Encryption</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed">Sensitive credentials are encrypted at rest using <span class="text-white font-semibold">AES-256-GCM</span> with a server-side key stored as an environment variable — never in the database.</p>
+                    <ul class="space-y-2 mt-2">
+                        <li class="flex items-start gap-2 text-sm text-slate-300">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"></span>
+                            <span><span class="text-white font-semibold">Qobuz user token</span> — encrypted before storage; decrypted only in memory when needed to fulfil a request.</span>
+                        </li>
+                        <li class="flex items-start gap-2 text-sm text-slate-300">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
+                            <span><span class="text-white font-semibold">Spotify OAuth tokens</span> — access and refresh tokens are encrypted before storage using the same AES-256-GCM scheme; automatically refreshed when expired.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Access Control -->
+                <div class="glass-panel rounded-2xl p-6 space-y-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-amber-500"></i>
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-amber-500">Access Control</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed">All user-facing API routes require a valid JWT verified server-side on every request. Rate limiting is applied to login and password-reset endpoints — a maximum of <span class="text-white font-semibold">5 attempts per 15-minute window per IP address</span> — to mitigate brute-force attacks.</p>
+                </div>
+
+                <!-- Privacy table -->
+                <div class="glass-panel rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="eye-off" class="w-4 h-4 text-amber-500"></i>
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-amber-500">Privacy — Data We Store</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm">Resonans collects and stores the minimum data necessary to provide the service.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-700">
+                                    <th class="pb-2 pr-4 text-slate-400 font-semibold uppercase tracking-wider">Data</th>
+                                    <th class="pb-2 pr-4 text-slate-400 font-semibold uppercase tracking-wider">Purpose</th>
+                                    <th class="pb-2 text-slate-400 font-semibold uppercase tracking-wider">Retention</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60">
+                                <tr><td class="py-2 pr-4 text-white font-medium">Email address</td><td class="py-2 pr-4 text-slate-300">Account identification and transactional email</td><td class="py-2 text-slate-400">Until account deleted</td></tr>
+                                <tr><td class="py-2 pr-4 text-white font-medium">Password hash</td><td class="py-2 pr-4 text-slate-300">Authentication</td><td class="py-2 text-slate-400">Until account deleted</td></tr>
+                                <tr><td class="py-2 pr-4 text-white font-medium">Music taste profile</td><td class="py-2 pr-4 text-slate-300">Personalising AI-generated playlists</td><td class="py-2 text-slate-400">Until deleted or cleared</td></tr>
+                                <tr><td class="py-2 pr-4 text-white font-medium">Qobuz user token</td><td class="py-2 pr-4 text-slate-300">Searching Qobuz and creating playlists</td><td class="py-2 text-slate-400">Until Qobuz unlinked</td></tr>
+                                <tr><td class="py-2 pr-4 text-white font-medium">Spotify OAuth tokens</td><td class="py-2 pr-4 text-slate-300">Searching Spotify and creating playlists</td><td class="py-2 text-slate-400">Until Spotify unlinked</td></tr>
+                                <tr><td class="py-2 pr-4 text-white font-medium">Generated playlists</td><td class="py-2 pr-4 text-slate-300">History and re-access</td><td class="py-2 text-slate-400">Until you delete them</td></tr>
+                                <tr><td class="py-2 pr-4 text-white font-medium">Verification/reset tokens</td><td class="py-2 pr-4 text-slate-300">One-time use (24 h / 1 h expiry)</td><td class="py-2 text-slate-400">On use or expiry</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Third parties -->
+                <div class="glass-panel rounded-2xl p-6 space-y-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-amber-500">Third-Party Services</h3>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed">Resonans is not affiliated with or endorsed by Qobuz or Spotify. Your credentials are used solely to interact with those platforms on your behalf and are never shared with third parties.</p>
+                    <p class="text-slate-300 text-sm leading-relaxed">The AI playlist generation is powered by OpenAI. Prompts sent to OpenAI include your music taste profile and any favourites you have loaded — no personally identifiable information (such as your email address or name) is included. Refer to <a href="https://openai.com/privacy" target="_blank" rel="noreferrer" class="text-amber-400 hover:underline">OpenAI's privacy policy</a> for details.</p>
                 </div>
             </div>
 
@@ -894,45 +989,26 @@
     </section>
 
     <!-- MOBILE BOTTOM NAVIGATION DOCK -->
-    <div class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-[#060911]/90 backdrop-blur-md border-t border-slate-800/80 px-4 py-2.5 flex justify-around items-center">
-        <button 
-            @click="activeTab = 'create'" 
-            :class="activeTab === 'create' ? 'text-amber-400' : 'text-slate-500'"
-            class="flex flex-col items-center gap-1"
-        >
+    <div class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-[#060911]/90 backdrop-blur-md border-t border-slate-800/80 px-2 py-2.5 flex justify-around items-center">
+        <button @click="activeTab = 'create'" :class="activeTab === 'create' ? 'text-amber-400' : 'text-slate-500'" class="flex flex-col items-center gap-1">
             <i data-lucide="music" class="w-5 h-5"></i>
-            <span class="text-[9px] uppercase font-bold tracking-wider">Create</span>
+            <span class="text-[8px] uppercase font-bold tracking-wider">Create</span>
         </button>
-        <button 
-            @click="activeTab = 'sync'" 
-            :class="activeTab === 'sync' ? 'text-amber-400' : 'text-slate-500'"
-            class="flex flex-col items-center gap-1"
-        >
+        <button @click="activeTab = 'sync'" :class="activeTab === 'sync' ? 'text-amber-400' : 'text-slate-500'" class="flex flex-col items-center gap-1">
             <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-            <span class="text-[9px] uppercase font-bold tracking-wider">Sync</span>
+            <span class="text-[8px] uppercase font-bold tracking-wider">Sync</span>
         </button>
-        <button 
-            @click="activeTab = 'profile'" 
-            :class="activeTab === 'profile' ? 'text-amber-400' : 'text-slate-500'"
-            class="flex flex-col items-center gap-1"
-        >
+        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'text-amber-400' : 'text-slate-500'" class="flex flex-col items-center gap-1">
             <i data-lucide="user" class="w-5 h-5"></i>
-            <span class="text-[9px] uppercase font-bold tracking-wider">Taste</span>
+            <span class="text-[8px] uppercase font-bold tracking-wider">Taste</span>
         </button>
-        <button 
-            @click="document.getElementById('contact-section').scrollIntoView({ behavior: 'smooth' })" 
-            class="flex flex-col items-center gap-1 text-slate-500 hover:text-amber-400 font-bold transition-all"
-        >
-            <i data-lucide="mail" class="w-5 h-5"></i>
-            <span class="text-[9px] uppercase font-bold tracking-wider">Support</span>
+        <button @click="activeTab = 'about'" :class="activeTab === 'about' ? 'text-amber-400' : 'text-slate-500'" class="flex flex-col items-center gap-1">
+            <i data-lucide="info" class="w-5 h-5"></i>
+            <span class="text-[8px] uppercase font-bold tracking-wider">About</span>
         </button>
-        <button 
-            @click="activeTab = 'settings'" 
-            :class="activeTab === 'settings' ? 'text-amber-400' : 'text-slate-500'"
-            class="flex flex-col items-center gap-1"
-        >
-            <i data-lucide="settings" class="w-5 h-5"></i>
-            <span class="text-[9px] uppercase font-bold tracking-wider">Settings</span>
+        <button @click="activeTab = 'privacy'" :class="activeTab === 'privacy' ? 'text-amber-400' : 'text-slate-500'" class="flex flex-col items-center gap-1">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+            <span class="text-[8px] uppercase font-bold tracking-wider">Privacy</span>
         </button>
     </div>
 
